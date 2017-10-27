@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiyn.web.dao.FreeBoardDao">
+
+	<select id="count" resultType="Integer">
+	SELECT COUNT(*) FROM FreeBoard;
+	</select>
+
+	<select id ="getPage"  resultType="Integer">
+			 select count(*) from FreeBoard; 
+	</select>
+
+	<select id="lastId" resultType="String">
+		SELECT MAX(CAST(id AS UNSIGNED)) id 
+		FROM FreeBoard
+	</select>
+
+<select resultType="com.wiyn.web.entity.FreeBoard" id="getList"> 
+
+ select*from FreeBoard  order by regDate desc limit ${(page-1) *10},10; 
+
+<!-- 		SELECT `FreeBoard`.`id`,
+    `FreeBoard`.`title`,
+    `FreeBoard`.`contentSrc`,
+    `FreeBoard`.`content`,
+    `FreeBoard`.`hit`,
+    `FreeBoard`.`regDate`,
+    `FreeBoard`.`memberId`,
+    `FreeBoard`.`commentCount`
+   
+FROM `lsedb`.`FreeBoard` ORDER BY regDate DESC; -->
+
+</select>
+
+<insert id="add" parameterType="com.wiyn.web.entity.FreeBoard">
+	<selectKey order="BEFORE" keyProperty="id" resultType="String">
+		select IFNULL(max(cast(id as unsigned)), 0)+1 id from FreeBoard
+	</selectKey>
+
+	INSERT INTO FreeBoard
+	(`id`,
+	`title`,
+	`contentSrc`,
+	`content`,
+	`regDate`,
+	`memberId`)
+
+	VALUES
+	(
+	#{id},
+	#{title},
+	#{contentSrc},
+	#{content},
+	now(),
+	#{memberId}
+	)
+	
+</insert>
+
+<delete id="delete">
+	DELETE FROM FreeBoard
+	WHERE id=#{id}
+	
+</delete>
+
+<update id="updateHit">
+	UPDATE `wiyn`.`FreeBoard` SET hit=hit+1 WHERE `id`=#{id};
+</update>
+
+<update id="updateCommentCount">
+	UPDATE `wiyn`.`FreeBoard` SET `commentCount`=(SELECT COUNT(*) FROM FreeComment Where `freeBoardId`=#{id}) WHERE `id`=#{id};
+</update>
+
+<update id="update">
+
+	UPDATE `wiyn`.`FreeBoard`
+	SET
+
+	`title` = #{title},
+	`contentSrc` = #{contentSrc},
+	`content` = #{content}
+
+	WHERE `id` = #{id}
+	
+</update>
+
+<select id="getSize" resultType="String">
+		SELECT count(*) FROM FreeComment where freeBoardId = #{id};
+</select>
+
+
+</mapper>

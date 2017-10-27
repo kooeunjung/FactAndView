@@ -1,0 +1,99 @@
+
+body {
+	background-color: rgb(238, 238, 238);
+}
+
+body, html {
+	font-family: 'Abel', sans-serif;
+	color: #846C63;
+}
+
+.card-panel {
+	transition: box-shadow .25s;
+	padding: 20px;
+	margin: 0.5rem 0 1rem 0;
+	border-radius: 2px;
+	background-color: #fff;
+}
+
+.card-panel {
+	transition: box-shadow .25s;
+	padding: 20px;
+	margin: 0.5rem 0 1rem 0;
+	border-radius: 2px;
+	background-color: #bababa !important;
+	min-height: 640px;
+}
+
+#main {
+	width: 100%;
+	min-height: 500px;
+	font-size: 14px;
+	line-height: 1.5em;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 3px;
+	box-shadow: 1px 1px 5px #383838;
+	background: #f4f4f4 !important;
+}
+
+#title {
+	width: 20px;
+	font-family: bold;
+	display: inline;
+	font-style: black;
+	font-weight: bolder;
+	margin-left: 10px;
+}
+
+#address {
+	width: 20px;
+	display: inline;
+	font-style: black;
+	font-weight: bolder;
+	margin-left: 10px;
+}
+
+#divtitle {
+	padding-top: 50px;
+}
+
+#divaddress {
+	padding-top: 10px;
+}
+
+#divcontent {
+	padding-top: 20px;
+}
+
+#divtag {
+	padding-top: 20px;
+}
+
+#titleinput {
+	width: 100%;
+	margin-right: 10%;
+}
+
+#input-field1 {
+	width: 100px;
+}
+
+#input-field2 {
+	width: 100px;
+	float: left;
+	margin-left: 10px;
+}
+
+.btn {
+	background: #3498db;
+}
+
+.btn:hover {
+	/* background: rgb(210, 178, 149); */
+	background-color: #1abc9c !important;
+}
+
+
+
+@CHARSET "UTF-8";

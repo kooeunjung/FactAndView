@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wiyn.web.dao.NoticeBoardDao">
+<select resultType="com.wiyn.web.entity.NoticeBoard" id="getList"> 
+	SELECT * FROM `wiyn`.`NoticeBoard`
+	ORDER BY regDate DESC
+</select>
+
+<select id="count" resultType="Integer">
+	SELECT COUNT(*) FROM NoticeBoard
+</select>
+
+<select resultType="com.wiyn.web.entity.NoticeBoard" id="get"> 
+	SELECT * FROM NoticeBoard WHERE id = #{id}
+</select>
+
+<insert id="add" parameterType="com.wiyn.web.entity.NoticeBoard">
+	<selectKey order="BEFORE" keyProperty="id" resultType="String">
+         select max(cast(id as unsigned))+1 id from NoticeBoard
+    </selectKey>
+
+		INSERT INTO
+		`wiyn`.`NoticeBoard`
+		(
+		`id`,
+		`title`,
+		`content`,
+		`contentSrc`,
+		`regDate`,
+		`memberId`
+		)
+		VALUES
+		(
+		#{id},
+		#{title},
+		#{content},
+		#{contentSrc},
+		now(),
+		#{memberId}
+		)
+
+</insert>
+
+<update id="update">
+	UPDATE NoticeBoard SET title = #{title}, content = #{content}, contentSrc = #{contentSrc} WHERE id = #{id}
+</update>
+
+<update id="updateViewCnt">
+	UPDATE NoticeBoard SET hit = hit + 1 where id = #{id}
+</update>
+
+<delete id="delete">
+	DELETE FROM NoticeBoard WHERE id = #{id}
+</delete>
+
+</mapper>
+

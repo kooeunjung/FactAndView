@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wiyn.web.dao.UserPageDao">
+
+	<select resultType="com.wiyn.web.entity.AddBoard" id="getList">
+	 
+	SELECT  FreeBoard.boardName,FreeBoard.id,FreeBoard.title,FreeBoard.regDate
+			FROM wiyn.FreeBoard where FreeBoard.memberId = #{param1} union select
+			SiteBoard.boardName, SiteBoard.id,SiteBoard.title,SiteBoard.regDate
+			From wiyn.SiteBoard  where SiteBoard.memberId =#{param1} union select
+            RequestBoard.boardName, RequestBoard.id, RequestBoard.title, RequestBoard.regDate
+            From wiyn.RequestBoard where RequestBoard.memberId=#{param1}
+			order by regDate desc;
+							
+	</select>
+	
+	<select resultType="com.wiyn.web.entity.AddBoard" id="getFreeList">
+	SELECT  FreeBoard.boardName,FreeBoard.id,FreeBoard.title,FreeBoard.regDate
+			FROM wiyn.FreeBoard where FreeBoard.memberId = #{param1} order by regDate desc;	
+	</select>
+	<select resultType="com.wiyn.web.entity.UserSiteBoard" id="getSiteList">
+	SELECT  SiteBoard.boardName,SiteBoard.id,SiteBoard.title,SiteBoard.regDate
+			FROM wiyn.SiteBoard where SiteBoard.memberId = #{param1} order by regDate desc;	 
+	</select>
+	<select resultType="com.wiyn.web.entity.AddBoard" id="getRequestList">
+	SELECT  RequestBoard.boardName,RequestBoard.id,RequestBoard.title,RequestBoard.regDate
+			FROM wiyn.RequestBoard where RequestBoard.memberId = #{param1} order by regDate desc;
+	</select>
+	
+	
+	<select resultType="Integer" id="getListCount">
+		  SELECT sum(A+B+C) sum FROM(
+            (SELECT COUNT(*) A 
+            FROM wiyn.FreeBoard where lsedb.FreeBoard.memberId=#{param1}) as A 
+            join
+			(SELECT Count(*) B FROM wiyn.SiteBoard where memberId=#{param1}) As B
+            join
+            (SELECT COUNT(*) C FROM wiyn.RequestBoard where memberId=#{param1}) as C);
+	</select>
+	
+ 	<select  resultType="Integer" id="getReplyCount">
+		SELECT sum(A+B+C) sum
+		FROM(
+		(SELECT COUNT(*) A
+		FROM wiyn.FreeComment where lsedb.FreeComment.memberId=#{param1}) as A
+		join
+		(SELECT Count(*) B FROM wiyn.SiteComment where memberId=#{param1}) As B
+		join
+		(SELECT COUNT(*) C FROM wiyn.RequestComment where memberId=#{param1}) as C); 
+	</select>
+	
+	<select resultType="Integer" id="getLikeCount">
+		SELECT count(*) FROM wiyn.SiteBoardLike where memberId=#{param1};
+	</select> 
+	
+	<select resultType="com.wiyn.web.entity.AddBoard" id="getCommentList">
+	 
+		SELECT  FreeComment.boardName,FreeComment.content,FreeComment.regDate, FreeComment.freeBoardId id
+			FROM wiyn.FreeComment where FreeComment.memberId = #{param1} union select 
+			RequestComment.boardName,RequestComment.content,RequestComment.regDate, RequestComment.requestBoardId id
+			From wiyn.RequestComment  where RequestComment.memberId =#{param1} union select 
+			SiteComment.boardName,SiteComment.content,SiteComment.regDate, SiteComment.siteBoardId id
+			From wiyn.SiteComment where SiteComment.memberId=#{param1}
+			order by regDate desc;
+		
+		
+		
+	</select>
+	
+		<select resultType="com.wiyn.web.entity.AddBoard" id="getLikeList">
+	 
+		select SiteBoardLike.*, SiteBoard.title, SiteBoard.regDate from SiteBoardLike 
+    	inner join SiteBoard on SiteBoardLike.siteBoardId = SiteBoard.id where SiteBoardLike.memberId = #{param1}
+		
+		
+	</select>
+	
+	
+
+</mapper>

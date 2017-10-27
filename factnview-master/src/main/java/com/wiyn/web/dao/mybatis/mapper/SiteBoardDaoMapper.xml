@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiyn.web.dao.SiteBoardDao">
+
+	<!-- 검색한  게시물 카테고리에 따라 최신순으로 개수와 게시물 가져오기 -->
+	<select id="getList" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*, COUNT(C.siteBoardId)
+		good
+		FROM SiteBoard N
+		LEFT OUTER JOIN SiteBoardLike C ON C.siteBoardId= N.id WHERE title like
+		'%${query}%'
+		GROUP BY N.id, N.title, N.content, N.regDate, N.hit
+		order by regDate DESC LIMIT ${(page-1)*10},10
+	</select>
+	
+	<!-- factboard연관 게시물 가져오기 -->
+	<select id="getListRalative" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*FROM SiteBoard N WHERE factBoardId = #{factBoardId}
+		GROUP BY N.id, N.title, N.content, N.regDate, N.hit
+		order by regDate DESC LIMIT ${(page-1)*10},10;
+	</select>
+	
+	
+	<!-- 좋아요되어있는 게시물만 가져오기 -->
+	<select id="getListLike" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*,
+		COUNT(C.siteBoardId) good
+		FROM SiteBoard N
+		LEFT OUTER JOIN SiteBoardLike C ON C.siteBoardId= N.id
+		WHERE N.title like '%${query}%'
+		GROUP BY N.id, N.title, N.content,
+		N.regDate, N.hit
+		having good>=1
+		order by good desc, regDate desc
+		LIMIT ${(page-1)*10},10
+	</select>
+
+	<!-- 코멘트 가져오기 -->
+	<select id="getListComment" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*, COUNT(C.siteBoardId) good
+		FROM SiteBoard N
+		LEFT OUTER JOIN SiteBoardLike C ON C.siteBoardId= N.id WHERE title like
+		'%${query}%'
+		GROUP BY N.id, N.title, N.content, N.regDate, N.hit
+		order by regDate desc LIMIT ${(page-1)*10},10
+	</select>
+<!-- 		<select id="getListComment" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*, COUNT(C.siteBoardId) good
+		FROM SiteBoard N
+		LEFT OUTER JOIN SiteBoardLike C ON C.siteBoardId= N.id WHERE title like
+		'%${query}%'
+		GROUP BY N.id, N.title, N.content, N.regDate, N.hit
+		order by countcomment DESC, regDate desc LIMIT ${(page-1)*10},10
+	</select>	 -->
+
+	<!-- 게시물 클릭시 게시물 가져오기 -->
+	<select id="getBoard" resultType="com.wiyn.web.entity.SiteBoard">
+		SELECT * FROM wiyn.SiteBoard where id = #{id} order by regDate desc
+	</select>
+	<!-- 이전 게시물 가져오기 -->
+	<select id="getPrev" resultType="com.wiyn.web.entity.SiteBoard">
+		SELECT *
+		FROM `wiyn`.`SiteBoard`
+		WHERE CAST(id AS unsigned) &lt; CAST(#{id} AS unsigned) ORDER BY regDate
+		DESC LIMIT 0, 1
+	</select>
+	<!-- 다음 게시물 가져오기 -->
+	<select id="getNext" resultType="com.wiyn.web.entity.SiteBoard">
+		SELECT *
+		FROM `wiyn`.`SiteBoard`
+		WHERE CAST(id AS unsigned) &gt; CAST(#{id} AS unsigned) ORDER BY regDate
+		ASC LIMIT 0, 1
+	</select>
+	<!-- 랜덤 게시물 가져오기 -->
+	<select id="getRandom" resultType="com.wiyn.web.entity.SiteBoard">
+		select * from SiteBoard order by rand() limit 1
+	</select>
+	
+
+	<!-- 오늘 이후 생성된 게시물 개수 -->
+	<select id="getNewsc" resultType="com.wiyn.web.entity.SiteBoard">
+		SELECT count(*) news FROM SiteBoard WHERE regDate > curdate()
+	</select>
+	<!-- 오늘 이후 생성된 게시물 개수 -->
+	<select id="getNewsL" resultType="com.wiyn.web.entity.SiteBoard">
+		select count(*) news from
+		(select N.* FROM SiteBoard N
+		left outer JOIN SiteBoardLike C ON C.siteBoardId= N.id
+		GROUP BY N.id,
+		N.regDate
+		Having COUNT(C.siteBoardId)>=1) SiteBoard where regDate > curdate()
+	</select>
+
+	<select id="getNewsH" resultType="com.wiyn.web.entity.SiteBoard">
+		SELECT count(*) news FROM SiteBoard WHERE regDate > curdate() and hit>=20
+	</select>
+	
+	<!-- 사이트 추가하기 -->
+	<insert id="add" parameterType="com.wiyn.web.entity.SiteBoard">
+		<selectKey order="BEFORE" keyProperty="id" resultType="String">
+			select IFNULL(max(cast(id as unsigned)), 0)+1 id from SiteBoard
+		</selectKey>
+		INSERT INTO `wiyn`.`SiteBoard`
+		(
+		`id`,
+		`title`,
+		`content`,
+		`regDate`,
+		`factBoardId`,
+		`factBoardName`,
+		`memberId`
+		)
+		VALUES
+		(
+		#{id},
+		#{title},
+		#{content},
+		now(),
+		#{factBoardId},
+		#{factBoardName},
+		#{memberId}
+		)
+	</insert>
+	
+	<!-- 사이트 업뎃하기 -->
+	<update id="update">
+		UPDATE `wiyn`.`SiteBoard`
+		SET
+		`title` = #{title},
+		`content` = #{content},
+		`factBoardId` = #{factBoardId}
+		WHERE `id` = #{id};
+	</update>
+	
+	<!-- 사이트  게시물 지우기 -->
+	<delete id="delete">
+		DELETE FROM SiteBoard
+		WHERE id=#{id}
+	</delete>
+
+
+	<select id="lastId" resultType="String">
+		SELECT MAX(CAST(id AS UNSIGNED))
+		id
+		FROM SiteBoard
+	</select>
+
+	<select id="getSize" resultType="Integer">
+		SELECT COUNT(id) SIZE
+		FROM
+		SiteBoard
+		WHERE BINARY title LIKE '%${param1}%'
+	</select>
+	
+	<update id="updateHit">
+		UPDATE `wiyn`.`SiteBoard` SET hit=hit+1 WHERE `id`=#{id};
+	</update>
+
+<!-- 	<select id="getBName" resultType="String">
+		select BigCategory.name
+		from SiteBoard
+		inner join BigCategory
+		on SiteBoard.bigCategoryId=BigCategory.id where
+		SiteBoard.id=#{param1}
+	</select>
+
+	<select id="getSName" resultType="String">
+		select SmallCategory.name
+		from SiteBoard
+		inner join SmallCategory
+		on SiteBoard.smallCategoryId=SmallCategory.id
+		where
+		SiteBoard.id=#{param1}
+	</select>
+
+	<select id="getTName" resultType="String">
+		select Tag.name FROM Tag inner join SiteBoard on
+		Tag.siteBoardId=SiteBoard.id where SiteBoard.id=#{param1}
+		select SUBSTRING_INDEX (SUBSTRING_INDEX(Tag.name,',',numbers.n),',',-1) 
+			name from (select 1 n union all select 2 union all select 3 union all select 
+			4 union all select 5 union all select 6 union all select 7 union all select 
+			8 union all select 9 union all select 10) numbers INNER JOIN Tag on CHAR_LENGTH 
+			( Tag.name ) - CHAR_LENGTH ( REPLACE ( Tag.name , ',' , '' ))>= numbers . 
+			n-1 inner join SiteBoard on SiteBoard.Id = Tag.siteBoardId where Tag.siteBoardId=#{param1}
+	</select>
+	
+	<select id="getTagLoad" resultType="com.wiyn.web.entity.SiteBoard">
+		select * from SiteBoard inner join Tag on Tag.siteBoardId=SiteBoard.id where
+		Tag.name=#{tag}
+	</select>
+ -->
+	<update id="updateCommentCount">
+		UPDATE `wiyn`.`SiteBoard` SET `countcomment`=(SELECT COUNT(*) FROM
+		SiteComment Where `siteBoardId`=#{id}) WHERE `id`=#{id};
+	</update>
+	
+	<!-- 게시물 수  -->
+	<select id="count" resultType="Integer">
+		SELECT COUNT(*) FROM SiteBoard
+	</select>
+	
+	<!-- 좋아요 개수 가져오기 -->
+	<select id="countlike" resultType="Integer">
+		select count(*) from
+		(select
+		N.* FROM SiteBoard N
+		left outer JOIN SiteBoardLike C ON C.siteBoardId= N.id
+		GROUP BY N.id,
+		N.regDate
+		Having COUNT(C.siteBoardId)>=1) SiteBoard
+	</select>
+	
+	<!-- 태그개수 -->
+	<select id="countquery" resultType="Integer">
+		select count(*) from SiteBoard inner join Tag on
+		Tag.siteBoardId=SiteBoard.id where Tag.name=#{tag}
+	</select>
+
+	<!-- select S.*,COUNT(C.siteBoardId) countcomment FROM SiteBoard S LEFT 
+		OUTER JOIN SiteComment C ON C.siteBoardId= S.id WHERE S.title like '%${query}%' 
+		and bigCategoryId like '%${bigCa}%' and smallCategoryId like '%${smallCa}%' 
+		GROUP BY S.id, S.title, S.content, S.regDate, S.url, S.hit order by countcomment 
+		DESC, regDate desc LIMIT ${(page-1)*10},10 -->
+
+	
+	<!-- <select id="getHotSmall" resultType="com.wiyn.web.entity.SiteBoard">
+		select * from SiteBoard inner join SmallCategory on
+		SiteBoard.smallCategoryId=SmallCategory.id where
+		SiteBoard.smallCategoryId=#{id }
+	</select> -->
+
+<!-- 	<select id="likeBig" resultType="com.wiyn.web.entity.SiteBoard">
+		select N.*, COUNT(C.siteBoardId)
+		good
+		FROM SiteBoard N
+		LEFT OUTER JOIN SiteBoardLike C ON C.siteBoardId= N.id
+		WHERE bigCategoryId like '%${bigCa}%'
+		GROUP BY N.id, N.title, N.content,
+		N.regDate, N.url, N.hit
+		having good>=1
+		order by good desc, regDate desc
+		LIMIT 3
+	</select> -->
+	
+	
+	
+	<!-- select SiteBoard.*, COUNT(C.siteBoardId) Good from SiteBoard inner 
+		join Tag on Tag.siteBoardId=SiteBoard.id left outer JOIN SiteBoardLike C 
+		ON C.siteBoardId=SiteBoard.id where Tag.name=#{tag} GROUP BY SiteBoard.id, 
+		SiteBoard.title, SiteBoard.content, SiteBoard.regDate, SiteBoard.url, SiteBoard.hit; -->
+
+</mapper>

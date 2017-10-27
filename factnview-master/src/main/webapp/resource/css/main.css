@@ -1,0 +1,30 @@
+@CHARSET "UTF-8";
+
+
+
+.col-xs-12.col-md-8 {
+    width: 66%;
+    float: left;
+}
+
+.col-xs-12.col-md-4 {
+    width: 33%;
+    float: left;
+    margin-left: 8px;
+    margin-top: 6px;
+}
+
+a.dropdown-button.btn {
+	margin-top: 5px;
+    width: 100%;
+}
+
+
+
+button.btn.waves-effect.waves-light.right {
+    margin-top: 5px;
+}
+
+ul.tabs {
+    margin-top: 10px;
+}

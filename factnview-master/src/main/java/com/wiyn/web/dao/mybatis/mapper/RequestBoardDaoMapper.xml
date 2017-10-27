@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wiyn.web.dao.RequestBoardDao">
+
+	<select id="count" resultType="Integer">
+	SELECT COUNT(*) FROM RequestBoard;
+	</select>
+
+	<select id ="getSize" resultType="Integer">
+	
+	select count(*) from RequestBoard;
+	
+	</select>
+	
+	
+	<select id ="getList" resultType="com.wiyn.web.entity.RequestBoard">
+	
+	 select*from RequestBoard  order by regDate desc <!-- limit ${(page-1) *10},10;  -->
+	
+	</select>
+
+	<!-- <select resultType="com.wiyn.web.entity.RequestBoard" id="getList">
+		SELECT
+		`RequestBoard`.`id`, `RequestBoard`.`title`, `RequestBoard`.
+		`content`, `RequestBoard`.`regDate`, `RequestBoard`.`memberId`
+		FROM
+		`lsedb`.`RequestBoard`
+	</select> -->
+	
+	<insert id="add" parameterType="com.wiyn.web.entity.RequestBoard">
+		<selectKey order="BEFORE" keyProperty="id" resultType="String">
+			select IFNULL (max(cast(id as unsigned)),0)+1 id from RequestBoard
+		</selectKey>
+
+		INSERT INTO
+		`wiyn`.`RequestBoard`
+		(
+		`id`,
+		`title`,
+		`content`,
+		`regDate`,
+		`memberId`
+		)
+		VALUES
+		(
+		#{id},
+		#{title},
+		#{content},
+		now(),
+		#{memberId}
+		)
+
+
+	</insert>
+
+	<update id="update">
+		UPDATE `wiyn`.`RequestBoard`
+		SET
+		
+		`title` = #{title},
+		`content` = #{content}
+		
+			
+		WHERE `id` = #{id}
+		
+	
+	</update>
+	
+	<update id="updateViewCnt">
+	UPDATE RequestBoard SET hit = hit + 1 where id = #{id}  
+     </update>
+
+	<delete id="delete">
+		
+		DELETE FROM RequestBoard
+		WHERE id=#{id}
+		
+		
+	</delete>
+	
+	<!-- <select id="getPrev" resultType="com.wiyn.web.entity.RequestBoard">
+	SELECT * 
+        FROM `lsedb`.`RequestBoard`
+        WHERE CAST(id AS unsigned) &lt; CAST(#{id} AS unsigned) ORDER BY regDate DESC LIMIT 0, 1
+	
+	</select>
+	
+	<select id="getNext" resultType="com.wiyn.web.entity.RequestBoard">
+	SELECT * 
+        FROM `lsedb`.`RequestBoard`
+        WHERE CAST(id AS unsigned) &lt; CAST(#{id} AS unsigned) ORDER BY regDate DESC LIMIT 0, 1
+	
+	</select>
+	
+	<select id ="getList" resultType="com.wiyn.web.entity.RequestBoard">
+		SELECT* FROM RequestBoard WHERE title like '%${query}%' LIMIT ${(page-1)*10},10
+	</select>
+	
+	<select id="lastId" resultType="String">
+		SELECT MAX(CAST(id AS UNSIGNED)) id
+		FROM RequestBoard
+	</select>
+	
+	<select id="getSize" resultType="Integer">
+		SELECT COUNT(id) SIZE
+		FROM RequestBoard
+		WHERE BINARY title LIKE '%${param1}%'
+	</select> -->
+
+</mapper>
